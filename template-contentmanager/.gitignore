@@ -1,0 +1,23 @@
+# Corporate IP (R-Org-1) — никогда в git
+# Паттерн ignore-content-but-keep-dir: `dir/*` вместо `dir/` + whitelist .gitkeep
+docs/corpus/*
+!docs/corpus/.gitkeep
+
+# Secrets (R8)
+.env
+.env.local
+.env.*.local
+
+# Claude Code local state
+.claude/local/
+.claude/sessions/
+
+# Meta/Instagram exported data (может содержать personal info)
+docs/metrics/raw-exports/
+
+# Supervisor permissions / screenshots (может содержать имена, emails)
+docs/network/permissions/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+# Dotfiles
+.DS_Store
+
+# Local experiments / smoke tests
+/tmp/
+/smoke-test/
