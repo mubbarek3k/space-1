@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<script>try{if(!localStorage.getItem('lu_onb')&&!/[?&]skip/.test(location.search))location.replace('onboarding.html')}catch(e){}
+function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replace(/[<>&"]/g,'')}catch(e){return 'Азат'}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LEVEL UP - Мой путь</title>
@@ -1143,7 +1145,7 @@ const VIEWS = {
   },
 
   ai: () => ({ title:'AI Ассистент', html: `<div class="day-chip">Сегодня</div>
-      <div class="msg">Привет, Азат! 👋<br>Я твой AI ассистент в Level Up.<span class="tm">${hm()}</span></div>
+      <div class="msg">Привет, ${UNAME()}! 👋<br>Я твой AI ассистент в Level Up.<span class="tm">${hm()}</span></div>
       <div class="msg">Чем могу помочь сегодня?<span class="tm">${hm()}</span></div>
       <div id="chat" style="display:contents"></div>
       <div id="sugg" class="sugg">
