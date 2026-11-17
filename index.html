@@ -1871,7 +1871,21 @@ function unlock(k){
 }
 applyLocks();
 let SWIPES = 0; try { SWIPES = +localStorage.getItem('lu_swipes') || 0; } catch(e){}
-function countSwipe(){ SWIPES++; try { localStorage.setItem('lu_swipes', SWIPES); } catch(e){} if (SWIPES >= 5) unlock('tests'); }
+const STORIES = {
+  tests: [['отлично, ты довольно быстро справился с этим разделом', '18%', 1800],
+          ['теперь следующий шаг: тебе нужно сдать тесты, у нас их много, поверь', '14%', 2200],
+          ['зачем это нужно?', '24%', 1300],
+          ['так мы поймём, на каком ты уровне, плюс-минус', '16%', 1800],
+          ['а это позволит правильно сформировать программу подготовки', '14%', 2200],
+          ['ждём результатов', '24%', 1700]]};
+function storyOnce(k){
+  let seen = []; try { seen = JSON.parse(localStorage.getItem('lu_story')) || []; } catch(e){}
+  if (seen.includes(k) || !STORIES[k]) return; seen.push(k); try { localStorage.setItem('lu_story', JSON.stringify(seen)); } catch(e){}
+  const go = () => window.STORY ? STORY(STORIES[k], k) : setTimeout(go, 500); go();
+}
+function countSwipe(){ SWIPES++; try { localStorage.setItem('lu_swipes', SWIPES); } catch(e){}
+  if (SWIPES === 5 && !OPEN.includes('tests')){ setTimeout(() => { if (stage.classList.contains('lmode')) closeLaptop(); unlock('tests'); storyOnce('tests'); }, 900); }
+  else if (SWIPES >= 5) unlock('tests'); }
 
 /* ---------- onboarding in the hero's speech bubbles, then a short tour ---------- */
 let SAYING = false;
@@ -1916,6 +1930,13 @@ let SAYING = false;
       bx.querySelector('.y').onclick = ok; inp.onkeydown = e => { if (e.key === 'Enter') ok(); };
     });
   }
+  window.STORY = async (msgs, key) => {
+    while (/\b(fp|lmode|pmode|bmode|smode)\b/.test(stage.className) || SAYING) await wait(400);
+    SAYING = true; if (cur !== 'W') switchTo('W'); await wait(700);
+    for (const [m, tail, hold] of msgs){ glow(key); await say(m, tail, hold); }
+    box.classList.remove('on'); SAYING = false;
+    const b = document.querySelector(`.icons .rb[data-key="${key}"]`); if (b) b.addEventListener('click', () => glow(null), {once:true});
+  };
   const QUESTIONS = ['ты сейчас учишься?', 'любишь работать за компьютером?', 'нравится общаться с людьми?', 'хочешь зарабатывать уже в этом году?',
     'знаешь английский хотя бы на базовом?', 'мечтаешь учиться или работать за границей?', 'любишь придумывать и рисовать?', 'готов уделять 30 минут в день своему росту?'];
   const TOUR = [['сейчас большинство разделов закрыты для тебя, но шаг за шагом ты их откроешь, всему своё время', null, '18%', 2400],
