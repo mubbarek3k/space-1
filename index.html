@@ -542,11 +542,18 @@
   .sboard .sdet b{display:block;font:900 2.1cqw/1.15 Manrope,system-ui}.sboard .sdet small{display:block;font:600 1.5cqw/1.3 Manrope,system-ui;color:#6b4a2e;margin:.4cqw 0 1cqw}
   .sboard .sdet .buy{font:900 1.7cqw/1 Manrope,system-ui;background:#4a2a14;color:#ffd45a;padding:1.1cqw 2cqw;border-radius:99px}
   .sboard .sdet .x{position:absolute;right:1.2cqw;top:1cqw;font:900 2.4cqw/1 Manrope,system-ui;color:#6b4a2e}
+  /* ===== locked apps ===== */
+  .icons .rb.lock{color:rgba(255,255,255,.55)}
+  .icons .rb.lock .c{position:relative;filter:grayscale(1) brightness(.45)}
+  .icons .rb.lock:after{content:"";position:absolute;width:5.2cqw;height:5.2cqw;margin:6.4cqw 0 0 8.6cqw;image-rendering:pixelated;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 13' shape-rendering='crispEdges'%3E%3Cpath d='M3 1h6v1h1v4h1v7H1V6h1V2h1zM4 3v3h4V3z' fill='%231b1410'/%3E%3Cpath d='M2 7h8v5H2z' fill='%23ffd45a'/%3E%3Cpath d='M5 8h2v3H5z' fill='%231b1410'/%3E%3Cpath d='M3 2h1v4H3zM8 2h1v4H8zM4 2h4v1H4z' fill='%23cfd6e0'/%3E%3C/svg%3E") center/contain no-repeat}
+  .icons .rb{position:relative}
   /* ===== wall aquarium, full width between the icons and the hero ===== */
   .aqua{position:absolute;left:0;right:0;top:35.4%;height:15.8%;pointer-events:none;display:flex;flex-direction:column;transition:opacity .6s}
   .aq-rim{height:5.5%;min-height:5px;background:linear-gradient(#ffffff,#dfe7ea 60%,#9fb0b6);box-shadow:0 .2cqw .4cqw rgba(0,0,0,.35)}
-  .aq-water{position:relative;flex:1;overflow:hidden;background:#9fd3d6;box-shadow:inset 0 0 0 .3cqw rgba(255,255,255,.35)}
-  .stage .aq-water video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1}
+  .aq-water{position:relative;flex:1;overflow:hidden;background:#9fd3d6 url(aquarium.jpg) center/cover;box-shadow:inset 0 0 0 .3cqw rgba(255,255,255,.35)}
+  .stage .aq-water video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+  .stage .aq-water video.on{opacity:1}
   .aq-glass{position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.28) 0 8%,transparent 18% 62%,rgba(255,255,255,.14) 70%,transparent 80%),linear-gradient(transparent 70%,rgba(0,40,60,.18))}
   .aq-fish{position:absolute;inset:0}
   .aq-fish .f{position:absolute;left:0;top:0;will-change:transform}
@@ -924,13 +931,13 @@
     <div class="aqua" aria-hidden="true"><div class="aq-rim"></div><div class="aq-water"><video src="aquarium.mp4" poster="aquarium.jpg" muted loop playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture></video><div class="aq-fish" id="aqFish"></div><i class="aq-glass"></i></div><div class="aq-base"></div></div>
     <div class="abs btns lower icons" id="btns">
       <button class="rb" data-open="tests"><span class="c" data-ico="tests"></span>Тесты</button>
+      <button class="rb" data-open="ai"><span class="c" data-ico="ai"></span>ИИ консультант</button>
       <button class="rb" data-go="plan.html"><span class="c" data-ico="plan"></span>Мой план</button>
-      <button class="rb" data-open="ai"><span class="c" data-ico="ai"></span>AI Ассистент</button>
       <button class="rb" data-open="opps"><span class="c" data-ico="case"></span>Возможности</button>
-      <button class="rb" data-open="rating"><span class="c" data-ico="users"></span>Рейтинг</button>
-      <button class="rb" data-go="profile.html"><span class="c" data-ico="user"></span>Жеке спэйс</button>
-      <button class="rb" data-open="pay"><span class="c" data-ico="pay"></span>Paydax</button>
-      <button class="rb" data-open="shop"><span class="c" data-ico="shop"></span>Магазин</button>
+      <button class="rb lock" data-locked="Рейтинг|LVL 5"><span class="c" data-ico="users"></span>Рейтинг</button>
+      <button class="rb lock" data-locked="Жеке спэйс|LVL 5"><span class="c" data-ico="user"></span>Жеке спэйс</button>
+      <button class="rb lock" data-locked="Paydax|LVL 6"><span class="c" data-ico="pay"></span>Paydax</button>
+      <button class="rb lock" data-locked="Магазин|LVL 7"><span class="c" data-ico="shop"></span>Магазин</button>
     </div>
     <svg class="cursor" id="cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2.5v17.2l4.6-4.3 2.9 6.6 3-1.3-2.9-6.5h6.3z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round"/></svg>
   </div>
@@ -1272,6 +1279,7 @@ function go(url){ $('stage').classList.add('fp'); setTimeout(() => goSplash(url)
 /* ---------- clicks ---------- */
 document.addEventListener('click', e => {
   const q = e.target.closest('[data-quiz]'); if (q){ const k = q.dataset.quiz; if (state.done[k]) open('tests'); else open('quiz', {k}); return; }
+  const lk = e.target.closest('[data-locked]'); if (lk){ const [n, l] = lk.dataset.locked.split('|'); toast2(`🔒 <b>${n}</b> откроется на ${l}. Проходи тесты и план, чтобы прокачаться`); lk.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:300}); return; }
   const o = e.target.closest('[data-open]'); if (o){ if (o.dataset.open === 'tests' && panel.classList.contains('open') && stack[0]?.[0]==='tests' && stack.length===1){ close(); return; } open(o.dataset.open); return; }
   const g = e.target.closest('[data-go]'); if (g){ go(g.dataset.go); return; }
   if (e.target.closest('[data-close]') || e.target.closest('[data-home]')){ close(); return; }
@@ -1677,6 +1685,9 @@ sboard.addEventListener('click', e => {
 });
 $('sExit').onclick = () => stage.classList.remove('smode');
 /* ---------- aquarium: fish swim on their own ---------- */
+(function(){ const v = document.querySelector('.aq-water video'); if (!v) return;
+  v.addEventListener('playing', () => v.classList.add('on'));
+  const go = () => v.play().catch(() => {}); go(); ['pointerdown','touchstart'].forEach(ev => addEventListener(ev, go, {once:true, passive:true})); })();
 (function(){
   const box = $('aqFish'); if (!box) return;
   const KINDS = [['big',.44,.045],['s1',.14,.07],['s2',.18,.065],['s3',.22,.06],['mint1',.13,.08],['mint2',.14,.075],['red',.17,.07],['pur1',.15,.07],['s1',.13,.075],['mint1',.12,.085]];
