@@ -971,8 +971,8 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
     <div class="abs btns lower icons" id="btns">
       <button class="rb" data-key="opps" data-open="opps"><span class="c" data-ico="case"></span>Возможности</button>
       <button class="rb" data-key="tests" data-open="tests"><span class="c" data-ico="tests"></span>Тесты</button>
-      <button class="rb" data-key="ai" data-open="ai"><span class="c" data-ico="ai"></span>ИИ консультант</button>
       <button class="rb" data-key="plan" data-go="plan.html"><span class="c" data-ico="plan"></span>Мой план</button>
+      <button class="rb" data-key="ai" data-open="ai"><span class="c" data-ico="ai"></span>ИИ консультант</button>
       <button class="rb lock" data-locked="Рейтинг|откроется на LVL 5"><span class="c" data-ico="users"></span>Рейтинг</button>
       <button class="rb lock" data-locked="Жеке спэйс|откроется на LVL 5"><span class="c" data-ico="user"></span>Жеке спэйс</button>
       <button class="rb lock" data-locked="Paydax|откроется на LVL 6"><span class="c" data-ico="pay"></span>Paydax</button>
@@ -1005,7 +1005,7 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
 const $ = id => document.getElementById(id);
 document.querySelectorAll('[data-ico]').forEach(el => el.innerHTML = WICON[el.dataset.ico] || '');
 const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4 4 10-10"/></svg>';
-const state = { pct: 42, xp: 42, lvl: 4, done: {}, applied: {}, notifRead: false };
+const state = { pct: 42, xp: 42, lvl: 4, done: (() => { try { return JSON.parse(localStorage.getItem('lu_done')) || {}; } catch(e){ return {}; } })(), applied: {}, notifRead: false };
 
 /* ---------- slim progress (can be hidden) ---------- */
 function setPxOff(off){ ui.classList.toggle('pxoff', off); try{ localStorage.setItem('lu_pxoff', off ? '1' : ''); }catch(e){} }
@@ -1303,8 +1303,8 @@ function addXp(n){
   const cl = $('clvl'); if (cl) cl.textContent = 'LVL ' + state.lvl;
 }
 function finishTest(k){
-  unlock('ai');
   if (state.done[k]) return;
+  setTimeout(() => { try { localStorage.setItem('lu_done', JSON.stringify(state.done)); } catch(e){} if (!testsLeft()) unlock('plan'); else { applyLocks(); toast2(`Тест пройден ✓ Осталось ${testsLeft()} из ${ALL_TESTS.length}`); } }, 50);
   state.done[k] = true; if (window.earn) earn(2000, 'Тест: ' + TESTS[k].name); addXp(20); setPct(state.pct + 8);
   playSpin();
 }
@@ -1321,7 +1321,7 @@ document.addEventListener('click', e => {
   const q = e.target.closest('[data-quiz]'); if (q){ const k = q.dataset.quiz; if (state.done[k]) open('tests'); else open('quiz', {k}); return; }
   const lk = e.target.closest('[data-locked]'); if (lk){ const [n, l] = lk.dataset.locked.split('|'); toast2(`🔒 <b>${n}</b>: ${l}`); return; }
   const o = e.target.closest('[data-open]'); if (o){ if (o.dataset.open === 'tests' && panel.classList.contains('open') && stack[0]?.[0]==='tests' && stack.length===1){ close(); return; } open(o.dataset.open); return; }
-  const g = e.target.closest('[data-go]'); if (g){ go(g.dataset.go); return; }
+  const g = e.target.closest('[data-go]'); if (g){ if (g.dataset.go === 'plan.html' && OPEN.includes('plan')){ try { localStorage.setItem('lu_plan_seen', '1'); } catch(e){} unlock('ai'); } go(g.dataset.go); return; }
   if (e.target.closest('[data-close]') || e.target.closest('[data-home]')){ close(); return; }
 });
 
@@ -1456,7 +1456,6 @@ function pReply(kind){
   }, 1100);
 }
 function pAsk(kind, text){
-  setTimeout(() => unlock('plan'), 2500);
   pchat.querySelectorAll('.sug').forEach(x => x.remove());
   pchat.insertAdjacentHTML('beforeend', `<div class="m me">${text.replace(/</g,'&lt;')}<span class="tm">${hm()} ✓✓</span></div>`);
   pReply(kind);
@@ -1850,8 +1849,10 @@ tick(); setInterval(tick, 20000);
 const UNLOCK = {
   opps:  {n:'Возможности'},
   tests: {n:'Тесты', hint:'свайпни 5 возможностей, чтобы открыть'},
-  ai:    {n:'ИИ консультант', hint:'пройди первый тест, чтобы открыть'},
-  plan:  {n:'Мой план', hint:'задай вопрос ИИ консультанту, чтобы открыть'}};
+  plan:  {n:'Мой план', hint:'пройди все тесты, чтобы открыть'},
+  ai:    {n:'ИИ консультант', hint:'загляни в «Мой план», чтобы открыть'}};
+const ALL_TESTS = ['en','prof','soft','logic','fin','it','kz','leader'];
+const testsLeft = () => ALL_TESTS.filter(k => !state.done[k]).length;
 let OPEN = ['opps']; try { const u = JSON.parse(localStorage.getItem('lu_unlocked')); if (Array.isArray(u)) OPEN = u; } catch(e){}
 function applyLocks(){
   document.querySelectorAll('.icons .rb[data-key]').forEach(b => {
@@ -1860,7 +1861,7 @@ function applyLocks(){
     const [t, v] = b.dataset.act.split(/:(.*)/);
     b.classList.toggle('lock', !open);
     if (open){ b.removeAttribute('data-locked'); b.setAttribute(t === 'open' ? 'data-open' : 'data-go', v); }
-    else { b.removeAttribute('data-open'); b.removeAttribute('data-go'); b.dataset.locked = `${u.n}|${u.hint}`; }
+    else { b.removeAttribute('data-open'); b.removeAttribute('data-go'); b.dataset.locked = `${u.n}|${k === 'plan' ? `пройди все тесты, осталось ${testsLeft()} из ${ALL_TESTS.length}` : u.hint}`; }
   });
 }
 function unlock(k){
@@ -1870,6 +1871,7 @@ function unlock(k){
   setTimeout(() => toast2(`🔓 Открыт раздел <b>«${UNLOCK[k].n}»</b>`), 700);
 }
 applyLocks();
+try { if (localStorage.getItem('lu_plan_seen') && OPEN.includes('plan')) unlock('ai'); if (!testsLeft() && OPEN.includes('tests')) unlock('plan'); } catch(e){}
 let SWIPES = 0; try { SWIPES = +localStorage.getItem('lu_swipes') || 0; } catch(e){}
 const STORIES = {
   tests: [['отлично, ты довольно быстро справился с этим разделом', '18%', 1800],
