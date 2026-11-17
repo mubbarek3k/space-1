@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<script>try{if(!localStorage.getItem('lu_onb')&&!/[?&]skip/.test(location.search))location.replace('onboarding.html')}catch(e){}
+<script>
 function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replace(/[<>&"]/g,'')}catch(e){return 'Азат'}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -573,12 +573,28 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
   .aq-base{height:12%;background:linear-gradient(#1a1a1a,#050505);box-shadow:0 1.2cqw 2.4cqw rgba(0,0,0,.65)}
   /* ===== hero's speech bubbles after onboarding ===== */
   .say{position:absolute;left:50%;top:41.5%;z-index:14;max-width:86%;padding:3.2cqw 5cqw;border-radius:9cqw;background:#4f97f0;color:#fff;
-    font:600 4.6cqw/1.15 Manrope,system-ui;white-space:nowrap;box-shadow:0 1.6cqw 4cqw rgba(0,0,0,.35);pointer-events:auto;cursor:pointer;
+    font:600 4.6cqw/1.2 Manrope,system-ui;white-space:normal;text-align:center;width:max-content;max-width:62%;box-shadow:0 1.6cqw 4cqw rgba(0,0,0,.35);pointer-events:auto;cursor:pointer;
     transform:translateX(-50%) scale(.6);opacity:0;transition:transform .35s cubic-bezier(.2,1.4,.4,1),opacity .25s}
   .say.on{transform:translateX(-50%) scale(1);opacity:1}
   .say:after{content:"";position:absolute;right:var(--tail,22%);bottom:-2.6cqw;border:2.8cqw solid transparent;border-top:3.2cqw solid #4f97f0;border-bottom:0}
   .say .caret{display:inline-block;width:.35cqw;height:1em;background:#fff;margin-left:.3cqw;vertical-align:-.12em;animation:cb .8s steps(2) infinite}
   @keyframes cb{50%{opacity:0}}
+  .say{touch-action:pan-y;user-select:none;-webkit-user-select:none}
+  .say.card{min-width:56%;cursor:grab;top:26%;padding:5cqw 6cqw}
+  .say.card .caret{display:none}
+  .stage.onb .say{top:30%}
+  .say .stamp{position:absolute;top:-3.4cqw;font:900 3.2cqw/1 Manrope,system-ui;padding:.8cqw 1.8cqw;border:.5cqw solid;border-radius:1.4cqw;background:#fff;opacity:0}
+  .say .stamp.y{right:3cqw;color:#18a34a;transform:rotate(10deg)}.say .stamp.n{left:3cqw;color:#e5484d;transform:rotate(-10deg)}
+  .say input{font:600 4.6cqw/1.2 Manrope,system-ui;color:#fff;background:none;border:0;border-bottom:.4cqw solid rgba(255,255,255,.7);outline:none;width:44cqw;text-align:center;padding:.6cqw 0;margin-top:1.6cqw}
+  .say input::placeholder{color:rgba(255,255,255,.6)}
+  .say .err{display:block;font-size:2.6cqw;color:#ffe08a;margin-top:1cqw;min-height:1em}
+  .sayx{position:absolute;left:50%;top:50%;z-index:14;transform:translateX(-50%);display:flex;gap:4cqw;opacity:0;pointer-events:none;transition:opacity .3s}
+  .sayx.on{opacity:1;pointer-events:auto}
+  .sayx button{width:13cqw;height:13cqw;border-radius:50%;font:900 5cqw/1 Manrope,system-ui;background:rgba(20,14,10,.6);color:#fff;box-shadow:inset 0 0 0 .4cqw rgba(255,255,255,.35)}
+  .sayx button.y{background:#22b357;box-shadow:none}.sayx button.n{background:#e5484d;box-shadow:none}
+  .sayx .hint{font:700 2.8cqw/13cqw Manrope,system-ui;color:#fff;text-shadow:0 1px 6px #000}
+  .stage.onb .ui,.stage.onb .cursor{opacity:0!important;pointer-events:none!important}
+  .stage.onb ~ .perks{display:none}
   .stage.fp .say,.stage.lmode .say,.stage.pmode .say,.stage.bmode .say,.stage.smode .say{display:none}
   .icons .rb.glow svg.wi{filter:drop-shadow(0 0 2.4cqw rgba(255,200,80,.95));animation:gl 1s ease-in-out infinite}
   @keyframes gl{50%{transform:translateY(-1cqw) scale(1.06)}}
@@ -943,7 +959,8 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
   </div>
 
 
-  <div class="say" id="say"><span id="sayT"></span><i class="caret"></i></div>
+  <div class="say" id="say"><span id="sayT"></span><i class="caret"></i><b class="stamp y">ДА</b><b class="stamp n">НЕТ</b></div>
+  <div class="sayx" id="sayx"></div>
   <div class="ui intro" id="ui">
     <div class="abs xpwrap" id="xpwrap">
       <div class="pxrow"><button class="pxlbl" data-go="plan.html">Мой путь</button><span>Roadmap</span><button class="wpill" data-open="pay"><span class="wc" data-ico="coin"></span><b id="wBal">100 000</b> ф</button><button class="lofi" data-lofi aria-label="Музыка"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 1h7v2H6v6H5v1H2V8h2zM9 3h2v4h-1v1H7V6h2z" fill="currentColor"/></svg></button><span class="pxpct"><span id="pct">0</span>%</span><button class="pxhide" id="pxHide" aria-label="Скрыть прогресс" title="Скрыть">–</button></div>
@@ -1827,23 +1844,74 @@ if (location.hash === '#open=tests') setTimeout(() => { history.replaceState(nul
 function tick(){ const d = new Date(); const c = $('deskClock'); if (c) c.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 tick(); setInterval(tick, 20000);
 
-/* ---------- hero speaks after onboarding: typed speech bubbles ---------- */
+/* ---------- onboarding in the hero's speech bubbles, then a short tour ---------- */
 let SAYING = false;
 (function(){
-  const MSG = [['это твоё рабочее место', null, '18%'], ['здесь всё, что тебе нужно', null, '24%'], ['изучи возможности', 'opps', '20%'],
-               ['сдай тесты и узнай свой уровень', 'tests', '14%'], ['и после давай строить план действий', 'plan.html', '10%']];
-  let go = false; try { go = !localStorage.getItem('lu_said') && (!!localStorage.getItem('lu_onb') || /[?&]skip/.test(location.search)); } catch(e){}
-  if (!go) return;
-  const box = $('say'), txt = $('sayT'); let i = -1, typing = null, next = null;
+  const box = $('say'), txt = $('sayT'), bx = $('sayx');
+  const wait = ms => new Promise(r => setTimeout(r, ms));
   const glow = k => document.querySelectorAll('.icons .rb').forEach(b => b.classList.toggle('glow', !!k && (b.dataset.open === k || b.dataset.go === k)));
-  function show(){
-    clearInterval(typing); clearTimeout(next); i++;
-    if (i >= MSG.length){ box.classList.remove('on'); glow(null); SAYING = false; try { localStorage.setItem('lu_said', '1'); } catch(e){} return; }
-    const [m, k, tail] = MSG[i]; box.style.setProperty('--tail', tail); txt.textContent = ''; box.classList.add('on'); glow(k);
-    let n = 0; typing = setInterval(() => { txt.textContent = m.slice(0, ++n); if (n >= m.length){ clearInterval(typing); next = setTimeout(show, 1700); } }, 55);
+  let skip = null;
+  box.addEventListener('click', () => { if (skip) skip(); });
+  function say(m, tail = '20%', hold = 1500){
+    box.classList.remove('card'); box.style.transform = ''; box.style.setProperty('--tail', tail);
+    txt.textContent = ''; box.classList.add('on');
+    return new Promise(res => { let n = 0, done = false;
+      const fin = () => { if (done) return; done = true; clearInterval(t); txt.textContent = m; skip = null; setTimeout(res, hold); };
+      const t = setInterval(() => { txt.textContent = m.slice(0, ++n); if (n >= m.length) fin(); }, 50); skip = fin; });
   }
-  box.onclick = e => { e.stopPropagation(); show(); };
-  setTimeout(() => { SAYING = true; show(); }, 1500);
+  function ask(q){
+    return new Promise(res => {
+      box.classList.add('card'); box.style.setProperty('--tail', '46%'); txt.textContent = q; box.classList.add('on');
+      bx.innerHTML = '<button class="n" aria-label="Нет">✕</button><span class="hint">свайпни</span><button class="y" aria-label="Да">✓</button>'; bx.classList.add('on');
+      const [st1, st2] = [box.querySelector('.stamp.y'), box.querySelector('.stamp.n')];
+      let x0 = null, dx = 0, over = false;
+      const out = yes => { if (over) return; over = true; box.onpointerdown = box.onpointermove = box.onpointerup = null;
+        box.style.transition = 'transform .3s, opacity .3s'; box.style.transform = `translateX(calc(-50% + ${yes ? 90 : -90}cqw)) rotate(${yes ? 18 : -18}deg)`; box.style.opacity = '0';
+        bx.classList.remove('on'); setTimeout(() => { box.classList.remove('on'); box.style.transition = 'none'; box.style.transform = ''; box.style.opacity = ''; st1.style.opacity = st2.style.opacity = 0;
+          requestAnimationFrame(() => box.style.transition = ''); res(yes); }, 320); };
+      box.onpointerdown = e => { x0 = e.clientX; dx = 0; box.setPointerCapture(e.pointerId); box.style.transition = 'none'; };
+      box.onpointermove = e => { if (x0 === null) return; dx = e.clientX - x0; box.style.transform = `translateX(calc(-50% + ${dx}px)) rotate(${dx / 16}deg)`;
+        st1.style.opacity = Math.max(0, dx / 80); st2.style.opacity = Math.max(0, -dx / 80); };
+      box.onpointerup = () => { x0 = null; if (Math.abs(dx) > 70) out(dx > 0); else { box.style.transition = ''; box.style.transform = ''; st1.style.opacity = st2.style.opacity = 0; } };
+      bx.querySelector('.y').onclick = () => out(true); bx.querySelector('.n').onclick = () => out(false);
+    });
+  }
+  function askName(){
+    return new Promise(res => {
+      box.classList.add('card'); box.style.setProperty('--tail', '46%'); box.classList.add('on');
+      txt.innerHTML = 'как тебя зовут?<br><input id="onbName" maxlength="20" placeholder="твоё имя" autocomplete="given-name"><span class="err" id="onbErr"></span>';
+      bx.innerHTML = '<button class="y" aria-label="Готово">✓</button>'; bx.classList.add('on');
+      const inp = $('onbName'); setTimeout(() => inp.focus(), 300); inp.oninput = () => $('onbErr').textContent = '';
+      const ok = () => { const v = inp.value.trim(); if (!v){ $('onbErr').textContent = 'напиши имя, чтобы продолжить'; return; }
+        bx.classList.remove('on'); box.classList.remove('on'); setTimeout(() => res(v), 300); };
+      bx.querySelector('.y').onclick = ok; inp.onkeydown = e => { if (e.key === 'Enter') ok(); };
+    });
+  }
+  const QUESTIONS = ['ты сейчас учишься?', 'любишь работать за компьютером?', 'нравится общаться с людьми?', 'хочешь зарабатывать уже в этом году?',
+    'знаешь английский хотя бы на базовом?', 'мечтаешь учиться или работать за границей?', 'любишь придумывать и рисовать?', 'готов уделять 30 минут в день своему росту?'];
+  const TOUR = [['это твоё рабочее место', null, '18%'], ['здесь всё, что тебе нужно', null, '24%'], ['изучи возможности', 'opps', '20%'],
+               ['сдай тесты и узнай свой уровень', 'tests', '14%'], ['и после давай строить план действий', 'plan.html', '10%']];
+  let onb = null, said = false; try { onb = localStorage.getItem('lu_onb'); said = !!localStorage.getItem('lu_said'); } catch(e){}
+  const fresh = !onb && !/[?&]skip/.test(location.search);
+  if (!fresh && said) return;
+  SAYING = true; if (fresh) stage.classList.add('onb');
+  (async () => {
+    await wait(fresh ? 1200 : 1500);
+    if (fresh){
+      await say('ты очутился в очень интересном месте', '18%');
+      await say('обещаем, будет интересно', '22%');
+      await say('но прежде нам надо познакомиться', '16%');
+      await say('свайпай направо, если да, и налево, если нет', '12%', 1900);
+      const ans = [];
+      for (const q of QUESTIONS) ans.push(await ask(q));
+      const name = await askName();
+      try { localStorage.setItem('lu_name', name); localStorage.setItem('lu_onb', JSON.stringify({answers: QUESTIONS.map((q, i) => [q, ans[i]]), at: Date.now()})); } catch(e){}
+      await say(`отлично, ${name}! мы готовы`, '20%');
+      stage.classList.remove('onb'); await wait(700);
+    }
+    for (const [m, k, tail] of TOUR){ glow(k); await say(m, tail, 1700); }
+    glow(null); box.classList.remove('on'); SAYING = false; try { localStorage.setItem('lu_said', '1'); } catch(e){}
+  })();
 })();
 
 /* ---------- intro ---------- */
