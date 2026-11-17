@@ -837,6 +837,7 @@
 <img class="bgfill" src="write.jpg" alt="" aria-hidden="true">
 <div class="stage" id="stage">
   <video id="vW" class="show" src="write.mp4" poster="write.jpg" muted playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture disableremoteplayback></video>
+  <video id="vR" src="read.mp4" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
   <video id="vB" src="spin.mp4" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
   <video id="vD" src="doc.mp4" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
   <video id="vC" src="cube.mp4" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
@@ -1061,7 +1062,7 @@ function open(name, arg, push = true){
   panel.classList.remove('laptopmode','phonemode','boardmode'); if (MODE) panel.classList.add(MODE);
   panel.classList.toggle('scrollmode', MODE === 'scrollmode');
   $('stage').classList.toggle('m-lap', MODE === 'laptopmode'); $('stage').classList.toggle('m-phn', MODE === 'phonemode');
-  panel.classList.add('open'); ui.classList.add('hide'); $('stage').classList.add('popen','fp'); if (cur==='D'||cur==='C') switchTo('W');
+  panel.classList.add('open'); ui.classList.add('hide'); $('stage').classList.add('popen','fp'); if (cur==='D'||cur==='C'||cur==='R') switchTo('W');
   v.after && v.after();
   document.querySelectorAll('.rb').forEach(b => b.classList.toggle('on', b.dataset.open === name));
 }
@@ -1288,12 +1289,12 @@ document.addEventListener('click', e => {
 });
 
 /* ---------- hero videos: write -> spin -> documents -> cube -> ... ---------- */
-const vW = $('vW'), vB = $('vB'), vD = $('vD'), vC = $('vC'), stage = $('stage'), img = $('heroImg');
+const vW = $('vW'), vR = $('vR'), vB = $('vB'), vD = $('vD'), vC = $('vC'), stage = $('stage'), img = $('heroImg');
 const TAP_START = 3.88, TAP_END = 4.45, REST = 1.8;
-const V = {W: vW, B: vB, D: vD, C: vC};
-const SEQ = ['W','B','D','C'];
+const V = {W: vW, R: vR, B: vB, D: vD, C: vC};
+const SEQ = ['W','R','B','D','C'];
 // moments when the hero rises above the menu: hide the lower menu so it never covers him
-const ZONES = {D: [0.6, 8.5], C: [5.0, 7.9]};
+const ZONES = {R: [1.5, 4.4], D: [0.6, 8.5], C: [5.0, 7.9]};
 let useImg = false, fired = false, taps = 0, cur = 'W', switching = false;
 Object.values(V).forEach(v => { v.muted = true; v.defaultMuted = true; v.setAttribute('muted',''); });
 function fallback(){ if (useImg) return; useImg = true; img.src = 'write.webp'; stage.classList.add('fallback'); window._imgStart = performance.now(); }
@@ -1304,7 +1305,7 @@ document.addEventListener('pointerdown', () => { if (useImg) vW.play().catch(()=
 
 function nextOf(k){
   let i = SEQ.indexOf(k);
-  for (let n = 0; n < SEQ.length; n++){ i = (i + 1) % SEQ.length; const c = SEQ[i]; if (panel.classList.contains('open') && (c === 'D' || c === 'C')) continue; return c; }
+  for (let n = 0; n < SEQ.length; n++){ i = (i + 1) % SEQ.length; const c = SEQ[i]; if (panel.classList.contains('open') && (c === 'D' || c === 'C' || c === 'R')) continue; return c; }
 }
 function switchTo(next, at){
   if (useImg || switching || next === cur) return;
@@ -1317,7 +1318,7 @@ function switchTo(next, at){
   cur = next;
 }
 function playSpin(){ switchTo('B'); }
-['W','B','D','C'].forEach(k => V[k].addEventListener('ended', () => { if (cur === k) switchTo(nextOf(k)); }));
+['W','R','B','D','C'].forEach(k => V[k].addEventListener('ended', () => { if (cur === k) switchTo(nextOf(k)); }));
 
 function loop(){
   if (useImg){
