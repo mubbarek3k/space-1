@@ -969,14 +969,14 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
     </div>
     <button class="pxmini" id="pxMini" aria-label="Показать прогресс" title="Показать прогресс"><i id="fillMini"></i></button>
     <div class="abs btns lower icons" id="btns">
-      <button class="rb" data-open="tests"><span class="c" data-ico="tests"></span>Тесты</button>
-      <button class="rb" data-open="ai"><span class="c" data-ico="ai"></span>ИИ консультант</button>
-      <button class="rb" data-go="plan.html"><span class="c" data-ico="plan"></span>Мой план</button>
-      <button class="rb" data-open="opps"><span class="c" data-ico="case"></span>Возможности</button>
-      <button class="rb lock" data-locked="Рейтинг|LVL 5"><span class="c" data-ico="users"></span>Рейтинг</button>
-      <button class="rb lock" data-locked="Жеке спэйс|LVL 5"><span class="c" data-ico="user"></span>Жеке спэйс</button>
-      <button class="rb lock" data-locked="Paydax|LVL 6"><span class="c" data-ico="pay"></span>Paydax</button>
-      <button class="rb lock" data-locked="Магазин|LVL 7"><span class="c" data-ico="shop"></span>Магазин</button>
+      <button class="rb" data-key="opps" data-open="opps"><span class="c" data-ico="case"></span>Возможности</button>
+      <button class="rb" data-key="tests" data-open="tests"><span class="c" data-ico="tests"></span>Тесты</button>
+      <button class="rb" data-key="ai" data-open="ai"><span class="c" data-ico="ai"></span>ИИ консультант</button>
+      <button class="rb" data-key="plan" data-go="plan.html"><span class="c" data-ico="plan"></span>Мой план</button>
+      <button class="rb lock" data-locked="Рейтинг|откроется на LVL 5"><span class="c" data-ico="users"></span>Рейтинг</button>
+      <button class="rb lock" data-locked="Жеке спэйс|откроется на LVL 5"><span class="c" data-ico="user"></span>Жеке спэйс</button>
+      <button class="rb lock" data-locked="Paydax|откроется на LVL 6"><span class="c" data-ico="pay"></span>Paydax</button>
+      <button class="rb lock" data-locked="Магазин|откроется на LVL 7"><span class="c" data-ico="shop"></span>Магазин</button>
     </div>
     <svg class="cursor" id="cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2.5v17.2l4.6-4.3 2.9 6.6 3-1.3-2.9-6.5h6.3z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round"/></svg>
   </div>
@@ -1303,6 +1303,7 @@ function addXp(n){
   const cl = $('clvl'); if (cl) cl.textContent = 'LVL ' + state.lvl;
 }
 function finishTest(k){
+  unlock('ai');
   if (state.done[k]) return;
   state.done[k] = true; if (window.earn) earn(2000, 'Тест: ' + TESTS[k].name); addXp(20); setPct(state.pct + 8);
   playSpin();
@@ -1318,7 +1319,7 @@ function go(url){ $('stage').classList.add('fp'); setTimeout(() => goSplash(url)
 /* ---------- clicks ---------- */
 document.addEventListener('click', e => {
   const q = e.target.closest('[data-quiz]'); if (q){ const k = q.dataset.quiz; if (state.done[k]) open('tests'); else open('quiz', {k}); return; }
-  const lk = e.target.closest('[data-locked]'); if (lk){ const [n, l] = lk.dataset.locked.split('|'); toast2(`🔒 <b>${n}</b> откроется на ${l}. Проходи тесты и план, чтобы прокачаться`); return; }
+  const lk = e.target.closest('[data-locked]'); if (lk){ const [n, l] = lk.dataset.locked.split('|'); toast2(`🔒 <b>${n}</b>: ${l}`); return; }
   const o = e.target.closest('[data-open]'); if (o){ if (o.dataset.open === 'tests' && panel.classList.contains('open') && stack[0]?.[0]==='tests' && stack.length===1){ close(); return; } open(o.dataset.open); return; }
   const g = e.target.closest('[data-go]'); if (g){ go(g.dataset.go); return; }
   if (e.target.closest('[data-close]') || e.target.closest('[data-home]')){ close(); return; }
@@ -1455,6 +1456,7 @@ function pReply(kind){
   }, 1100);
 }
 function pAsk(kind, text){
+  setTimeout(() => unlock('plan'), 2500);
   pchat.querySelectorAll('.sug').forEach(x => x.remove());
   pchat.insertAdjacentHTML('beforeend', `<div class="m me">${text.replace(/</g,'&lt;')}<span class="tm">${hm()} ✓✓</span></div>`);
   pReply(kind);
@@ -1507,7 +1509,7 @@ function lFly(v){
   const list = lList(), o = list[LS.idx], card = lscr.querySelector('.lcard:not(.back)'); if (!o || !card) return;
   card.style.transition = 'transform .35s ease-in, opacity .35s'; card.style.transform = `translateX(${v * 130}%) rotate(${v * 20}deg)`; card.style.opacity = 0;
   if (v > 0 && !LS.saved[o.pos]){ LS.saved[o.pos] = o; addXp(5); toast2(`♥ <b>${o.pos}</b> - сохранено`); }
-  setTimeout(() => { LS.idx++; lRender(); }, 300);
+  countSwipe(); setTimeout(() => { LS.idx++; lRender(); }, 300);
 }
 function lDetail(o, tab = 0){
   const panes = [`<ul>${o.in.map(x => `<li>${x}</li>`).join('')}</ul>`, `<p style="margin:0">${o.test}</p>`,
@@ -1844,6 +1846,33 @@ if (location.hash === '#open=tests') setTimeout(() => { history.replaceState(nul
 function tick(){ const d = new Date(); const c = $('deskClock'); if (c) c.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 tick(); setInterval(tick, 20000);
 
+/* ---------- sections open step by step ---------- */
+const UNLOCK = {
+  opps:  {n:'Возможности'},
+  tests: {n:'Тесты', hint:'свайпни 5 возможностей, чтобы открыть'},
+  ai:    {n:'ИИ консультант', hint:'пройди первый тест, чтобы открыть'},
+  plan:  {n:'Мой план', hint:'задай вопрос ИИ консультанту, чтобы открыть'}};
+let OPEN = ['opps']; try { const u = JSON.parse(localStorage.getItem('lu_unlocked')); if (Array.isArray(u)) OPEN = u; } catch(e){}
+function applyLocks(){
+  document.querySelectorAll('.icons .rb[data-key]').forEach(b => {
+    const k = b.dataset.key, u = UNLOCK[k], open = OPEN.includes(k);
+    if (!b.dataset.act){ b.dataset.act = b.dataset.open ? 'open:' + b.dataset.open : 'go:' + b.dataset.go; }
+    const [t, v] = b.dataset.act.split(/:(.*)/);
+    b.classList.toggle('lock', !open);
+    if (open){ b.removeAttribute('data-locked'); b.setAttribute(t === 'open' ? 'data-open' : 'data-go', v); }
+    else { b.removeAttribute('data-open'); b.removeAttribute('data-go'); b.dataset.locked = `${u.n}|${u.hint}`; }
+  });
+}
+function unlock(k){
+  if (OPEN.includes(k) || !UNLOCK[k]) return; OPEN.push(k); try { localStorage.setItem('lu_unlocked', JSON.stringify(OPEN)); } catch(e){}
+  applyLocks(); const b = document.querySelector(`.icons .rb[data-key="${k}"]`);
+  if (b){ b.classList.add('glow'); setTimeout(() => b.classList.remove('glow'), 6000); }
+  setTimeout(() => toast2(`🔓 Открыт раздел <b>«${UNLOCK[k].n}»</b>`), 700);
+}
+applyLocks();
+let SWIPES = 0; try { SWIPES = +localStorage.getItem('lu_swipes') || 0; } catch(e){}
+function countSwipe(){ SWIPES++; try { localStorage.setItem('lu_swipes', SWIPES); } catch(e){} if (SWIPES >= 5) unlock('tests'); }
+
 /* ---------- onboarding in the hero's speech bubbles, then a short tour ---------- */
 let SAYING = false;
 (function(){
@@ -1889,9 +1918,13 @@ let SAYING = false;
   }
   const QUESTIONS = ['ты сейчас учишься?', 'любишь работать за компьютером?', 'нравится общаться с людьми?', 'хочешь зарабатывать уже в этом году?',
     'знаешь английский хотя бы на базовом?', 'мечтаешь учиться или работать за границей?', 'любишь придумывать и рисовать?', 'готов уделять 30 минут в день своему росту?'];
-  const TOUR = [['это твоё рабочее место', null, '18%'], ['здесь всё, что тебе нужно', null, '24%'], ['изучи возможности', 'opps', '20%'],
-               ['сдай тесты и узнай свой уровень', 'tests', '14%'], ['и после давай строить план действий', 'plan.html', '10%']];
-  let onb = null, said = false; try { onb = localStorage.getItem('lu_onb'); said = !!localStorage.getItem('lu_said'); } catch(e){}
+  const TOUR = [['сейчас большинство разделов закрыты для тебя, но шаг за шагом ты их откроешь, всему своё время', null, '18%', 2400],
+               ['первый раздел, который тебе доступен, это «Возможности»', 'opps', '16%', 2000],
+               ['давай разберём, что это такое', 'opps', '20%', 1500],
+               ['в этом разделе мы собрали программы, гранты, конкурсы, батлы и стажировки', 'opps', '14%', 2400],
+               ['твоя задача свайпать и отобрать то, что тебе интересно', 'opps', '16%', 2000],
+               ['надеюсь, всё понятно', 'opps', '24%', 1700]];
+  let onb = null, said = false; try { onb = localStorage.getItem('lu_onb'); said = !!localStorage.getItem('lu_said2'); } catch(e){}
   const fresh = !onb && !/[?&]skip/.test(location.search);
   if (!fresh && said) return;
   SAYING = true; if (fresh) stage.classList.add('onb');
@@ -1909,8 +1942,8 @@ let SAYING = false;
       await say(`отлично, ${name}! мы готовы`, '20%');
       stage.classList.remove('onb'); await wait(700);
     }
-    for (const [m, k, tail] of TOUR){ glow(k); await say(m, tail, 1700); }
-    glow(null); box.classList.remove('on'); SAYING = false; try { localStorage.setItem('lu_said', '1'); } catch(e){}
+    for (const [m, k, tail, hold] of TOUR){ glow(k); await say(m, tail, hold); }
+    box.classList.remove('on'); const ob = document.querySelector('.icons .rb[data-key="opps"]'); if (ob) ob.addEventListener('click', () => glow(null), {once:true}); SAYING = false; try { localStorage.setItem('lu_said2', '1'); } catch(e){}
   })();
 })();
 
