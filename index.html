@@ -1832,13 +1832,13 @@ let SAYING = false;
 (function(){
   const MSG = [['это твоё рабочее место', null, '18%'], ['здесь всё, что тебе нужно', null, '24%'], ['изучи возможности', 'opps', '20%'],
                ['сдай тесты и узнай свой уровень', 'tests', '14%'], ['и после давай строить план действий', 'plan.html', '10%']];
-  let seen = false; try { seen = sessionStorage.getItem('lu_said') === '1'; } catch(e){}
-  if (seen) return;
+  let go = false; try { go = !localStorage.getItem('lu_said') && (!!localStorage.getItem('lu_onb') || /[?&]skip/.test(location.search)); } catch(e){}
+  if (!go) return;
   const box = $('say'), txt = $('sayT'); let i = -1, typing = null, next = null;
   const glow = k => document.querySelectorAll('.icons .rb').forEach(b => b.classList.toggle('glow', !!k && (b.dataset.open === k || b.dataset.go === k)));
   function show(){
     clearInterval(typing); clearTimeout(next); i++;
-    if (i >= MSG.length){ box.classList.remove('on'); glow(null); SAYING = false; try { sessionStorage.setItem('lu_said', '1'); } catch(e){} return; }
+    if (i >= MSG.length){ box.classList.remove('on'); glow(null); SAYING = false; try { localStorage.setItem('lu_said', '1'); } catch(e){} return; }
     const [m, k, tail] = MSG[i]; box.style.setProperty('--tail', tail); txt.textContent = ''; box.classList.add('on'); glow(k);
     let n = 0; typing = setInterval(() => { txt.textContent = m.slice(0, ++n); if (n >= m.length){ clearInterval(typing); next = setTimeout(show, 1700); } }, 55);
   }
