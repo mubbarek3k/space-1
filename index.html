@@ -548,6 +548,8 @@
   .icons .rb.lock:after{content:"";position:absolute;width:5.2cqw;height:5.2cqw;margin:6.4cqw 0 0 8.6cqw;image-rendering:pixelated;
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 13' shape-rendering='crispEdges'%3E%3Cpath d='M3 1h6v1h1v4h1v7H1V6h1V2h1zM4 3v3h4V3z' fill='%231b1410'/%3E%3Cpath d='M2 7h8v5H2z' fill='%23ffd45a'/%3E%3Cpath d='M5 8h2v3H5z' fill='%231b1410'/%3E%3Cpath d='M3 2h1v4H3zM8 2h1v4H8zM4 2h4v1H4z' fill='%23cfd6e0'/%3E%3C/svg%3E") center/contain no-repeat}
   .icons .rb{position:relative}
+  .icons .rb.lock .c{visibility:hidden}
+  .icons .rb.lock:after{left:50%;top:calc(.8cqw + 5.9cqw);margin:0!important;width:6.4cqw!important;height:6.4cqw!important;transform:translate(-50%,-50%)}
   .icons .rb.lock,.icons .rb.lock .c svg.wi{animation:none!important}
   .icons .rb.lock.hov,.icons .rb.lock:hover{background:none!important;border-color:transparent!important}
   /* ===== wall aquarium, full width between the icons and the hero ===== */
@@ -928,8 +930,6 @@
   </div>
 
 
-  <canvas class="occ" id="occ" aria-hidden="true"></canvas>
-  <div class="aqua" aria-hidden="true"><div class="aq-rim"></div><div class="aq-water"><video src="aquarium.mp4" poster="aquarium.jpg" muted loop playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture></video><div class="aq-fish" id="aqFish"></div><i class="aq-glass"></i></div><div class="aq-base"></div></div>
   <div class="ui intro" id="ui">
     <div class="abs xpwrap" id="xpwrap">
       <div class="pxrow"><button class="pxlbl" data-go="plan.html">Мой путь</button><span>Roadmap</span><button class="wpill" data-open="pay"><span class="wc" data-ico="coin"></span><b id="wBal">100 000</b> ф</button><button class="lofi" data-lofi aria-label="Музыка"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 1h7v2H6v6H5v1H2V8h2zM9 3h2v4h-1v1H7V6h2z" fill="currentColor"/></svg></button><span class="pxpct"><span id="pct">0</span>%</span><button class="pxhide" id="pxHide" aria-label="Скрыть прогресс" title="Скрыть">–</button></div>
@@ -1694,7 +1694,7 @@ sboard.addEventListener('click', e => {
 $('sExit').onclick = () => stage.classList.remove('smode');
 /* ---------- hero in front of the aquarium: per-scene hero cut-out drawn over the tank ---------- */
 (function(){
-  const cv = $('occ'), ctx = cv.getContext('2d'), FILES = {W:'write', R:'read', B:'spin', D:'doc', C:'cube'};
+  return; const cv = $('occ'), ctx = cv.getContext('2d'), FILES = {W:'write', R:'read', B:'spin', D:'doc', C:'cube'};
   const O = {}; Object.entries(FILES).forEach(([k, f]) => { const v = document.createElement('video'); v.className = 'occv'; v.src = `occ_${f}.mp4`;
     v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.preload = 'auto'; document.body.appendChild(v); O[k] = v; });
   const off = document.createElement('canvas'), oc = off.getContext('2d', {willReadFrequently: true}); let out = null, active = null;
