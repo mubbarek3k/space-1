@@ -571,6 +571,17 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
   .aq-fish .f img{display:block;height:100%;width:auto;transform-origin:30% 50%;animation:tail var(--tw,.9s) ease-in-out infinite alternate}
   @keyframes tail{from{transform:skewY(-3deg) scaleX(1.02)}to{transform:skewY(3deg) scaleX(.98)}}
   .aq-base{height:12%;background:linear-gradient(#1a1a1a,#050505);box-shadow:0 1.2cqw 2.4cqw rgba(0,0,0,.65)}
+  /* ===== hero's speech bubbles after onboarding ===== */
+  .say{position:absolute;left:50%;top:41.5%;z-index:14;max-width:86%;padding:3.2cqw 5cqw;border-radius:9cqw;background:#4f97f0;color:#fff;
+    font:600 4.6cqw/1.15 Manrope,system-ui;white-space:nowrap;box-shadow:0 1.6cqw 4cqw rgba(0,0,0,.35);pointer-events:auto;cursor:pointer;
+    transform:translateX(-50%) scale(.6);opacity:0;transition:transform .35s cubic-bezier(.2,1.4,.4,1),opacity .25s}
+  .say.on{transform:translateX(-50%) scale(1);opacity:1}
+  .say:after{content:"";position:absolute;right:var(--tail,22%);bottom:-2.6cqw;border:2.8cqw solid transparent;border-top:3.2cqw solid #4f97f0;border-bottom:0}
+  .say .caret{display:inline-block;width:.35cqw;height:1em;background:#fff;margin-left:.3cqw;vertical-align:-.12em;animation:cb .8s steps(2) infinite}
+  @keyframes cb{50%{opacity:0}}
+  .stage.fp .say,.stage.lmode .say,.stage.pmode .say,.stage.bmode .say,.stage.smode .say{display:none}
+  .icons .rb.glow svg.wi{filter:drop-shadow(0 0 2.4cqw rgba(255,200,80,.95));animation:gl 1s ease-in-out infinite}
+  @keyframes gl{50%{transform:translateY(-1cqw) scale(1.06)}}
   /* ===== rating: a 4-storey split-flap board in an atrium ===== */
   .bscene{position:absolute;inset:0;z-index:12;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .5s;background:#14161c}
   .stage.bmode .bscene{opacity:1;pointer-events:auto}
@@ -932,6 +943,7 @@ function UNAME(){try{return (localStorage.getItem('lu_name')||'Азат').replac
   </div>
 
 
+  <div class="say" id="say"><span id="sayT"></span><i class="caret"></i></div>
   <div class="ui intro" id="ui">
     <div class="abs xpwrap" id="xpwrap">
       <div class="pxrow"><button class="pxlbl" data-go="plan.html">Мой путь</button><span>Roadmap</span><button class="wpill" data-open="pay"><span class="wc" data-ico="coin"></span><b id="wBal">100 000</b> ф</button><button class="lofi" data-lofi aria-label="Музыка"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 1h7v2H6v6H5v1H2V8h2zM9 3h2v4h-1v1H7V6h2z" fill="currentColor"/></svg></button><span class="pxpct"><span id="pct">0</span>%</span><button class="pxhide" id="pxHide" aria-label="Скрыть прогресс" title="Скрыть">–</button></div>
@@ -1325,7 +1337,7 @@ function switchTo(next, at){
   cur = next;
 }
 function playSpin(){ switchTo('B'); }
-['W','R','B','D','C'].forEach(k => V[k].addEventListener('ended', () => { if (cur === k) switchTo(nextOf(k)); }));
+['W','R','B','D','C'].forEach(k => V[k].addEventListener('ended', () => { if (cur !== k) return; if (SAYING && k === 'W'){ vW.currentTime = 0; vW.play().catch(() => {}); return; } switchTo(nextOf(k)); }));
 
 function loop(){
   if (useImg){
@@ -1814,6 +1826,25 @@ if (location.hash === '#open=tests') setTimeout(() => { history.replaceState(nul
 /* ---------- desk phone clock ---------- */
 function tick(){ const d = new Date(); const c = $('deskClock'); if (c) c.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 tick(); setInterval(tick, 20000);
+
+/* ---------- hero speaks after onboarding: typed speech bubbles ---------- */
+let SAYING = false;
+(function(){
+  const MSG = [['это твоё рабочее место', null, '18%'], ['здесь всё, что тебе нужно', null, '24%'], ['изучи возможности', 'opps', '20%'],
+               ['сдай тесты и узнай свой уровень', 'tests', '14%'], ['и после давай строить план действий', 'plan.html', '10%']];
+  let seen = false; try { seen = sessionStorage.getItem('lu_said') === '1'; } catch(e){}
+  if (seen) return;
+  const box = $('say'), txt = $('sayT'); let i = -1, typing = null, next = null;
+  const glow = k => document.querySelectorAll('.icons .rb').forEach(b => b.classList.toggle('glow', !!k && (b.dataset.open === k || b.dataset.go === k)));
+  function show(){
+    clearInterval(typing); clearTimeout(next); i++;
+    if (i >= MSG.length){ box.classList.remove('on'); glow(null); SAYING = false; try { sessionStorage.setItem('lu_said', '1'); } catch(e){} return; }
+    const [m, k, tail] = MSG[i]; box.style.setProperty('--tail', tail); txt.textContent = ''; box.classList.add('on'); glow(k);
+    let n = 0; typing = setInterval(() => { txt.textContent = m.slice(0, ++n); if (n >= m.length){ clearInterval(typing); next = setTimeout(show, 1700); } }, 55);
+  }
+  box.onclick = e => { e.stopPropagation(); show(); };
+  setTimeout(() => { SAYING = true; show(); }, 1500);
+})();
 
 /* ---------- intro ---------- */
 requestAnimationFrame(() => setTimeout(() => { ui.classList.remove('intro'); setPct(42); }, 250));
