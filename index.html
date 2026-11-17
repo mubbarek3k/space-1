@@ -548,6 +548,8 @@
   .icons .rb.lock:after{content:"";position:absolute;width:5.2cqw;height:5.2cqw;margin:6.4cqw 0 0 8.6cqw;image-rendering:pixelated;
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 13' shape-rendering='crispEdges'%3E%3Cpath d='M3 1h6v1h1v4h1v7H1V6h1V2h1zM4 3v3h4V3z' fill='%231b1410'/%3E%3Cpath d='M2 7h8v5H2z' fill='%23ffd45a'/%3E%3Cpath d='M5 8h2v3H5z' fill='%231b1410'/%3E%3Cpath d='M3 2h1v4H3zM8 2h1v4H8zM4 2h4v1H4z' fill='%23cfd6e0'/%3E%3C/svg%3E") center/contain no-repeat}
   .icons .rb{position:relative}
+  .icons .rb.lock,.icons .rb.lock .c svg.wi{animation:none!important;transform:none!important}
+  .icons .rb.lock.hov,.icons .rb.lock:hover{background:none!important;border-color:transparent!important}
   /* ===== wall aquarium, full width between the icons and the hero ===== */
   .aqua{position:absolute;left:0;right:0;top:35.4%;height:15.8%;pointer-events:none;display:flex;flex-direction:column;transition:opacity .6s}
   .aq-rim{height:5.5%;min-height:5px;background:linear-gradient(#ffffff,#dfe7ea 60%,#9fb0b6);box-shadow:0 .2cqw .4cqw rgba(0,0,0,.35)}
@@ -1279,7 +1281,7 @@ function go(url){ $('stage').classList.add('fp'); setTimeout(() => goSplash(url)
 /* ---------- clicks ---------- */
 document.addEventListener('click', e => {
   const q = e.target.closest('[data-quiz]'); if (q){ const k = q.dataset.quiz; if (state.done[k]) open('tests'); else open('quiz', {k}); return; }
-  const lk = e.target.closest('[data-locked]'); if (lk){ const [n, l] = lk.dataset.locked.split('|'); toast2(`🔒 <b>${n}</b> откроется на ${l}. Проходи тесты и план, чтобы прокачаться`); lk.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:300}); return; }
+  const lk = e.target.closest('[data-locked]'); if (lk){ const [n, l] = lk.dataset.locked.split('|'); toast2(`🔒 <b>${n}</b> откроется на ${l}. Проходи тесты и план, чтобы прокачаться`); return; }
   const o = e.target.closest('[data-open]'); if (o){ if (o.dataset.open === 'tests' && panel.classList.contains('open') && stack[0]?.[0]==='tests' && stack.length===1){ close(); return; } open(o.dataset.open); return; }
   const g = e.target.closest('[data-go]'); if (g){ go(g.dataset.go); return; }
   if (e.target.closest('[data-close]') || e.target.closest('[data-home]')){ close(); return; }
@@ -1337,7 +1339,7 @@ stage.addEventListener('pointerdown', () => { if (stage.classList.contains('thru
 /* ---------- fake mouse cursor wandering over the wall icons ---------- */
 const cur$ = $('cursor'); let realMouse = 0;
 function wander(){
-  const icons = [...document.querySelectorAll('.icons .rb')];
+  const icons = [...document.querySelectorAll('.icons .rb:not(.lock)')];
   if (!icons.length || stage.classList.contains('fp')) return setTimeout(wander, 1500);
   const t = icons[Math.floor(Math.random() * icons.length)];
   const sr = stage.getBoundingClientRect(), r = t.getBoundingClientRect(), k = 100 / sr.width;
@@ -1386,9 +1388,9 @@ function popPerk(){
     const gone = setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 800); }, 4500);
     el.onclick = () => { clearTimeout(gone); el.classList.add('got'); state.perks.push(title); addXp(kind === 'xp' ? 50 : 5); toast2(`🎁 <b>${title}</b> - в личном кабинете`); setTimeout(() => el.remove(), 700); };
   }
-  setTimeout(popPerk, 6000 + Math.random() * 7000);
+  setTimeout(popPerk, 10 * 60 * 1000);
 }
-setTimeout(popPerk, 2500);
+setTimeout(popPerk, 60 * 1000);
 
 
 /* ---------- AI assistant: phone-in-hands scene ---------- */
